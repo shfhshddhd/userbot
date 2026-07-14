@@ -1,3 +1,6 @@
 telethon==1.44.0
+motor==3.7.0
+redis==5.2.1
 cryptography==44.0.1
-asyncio
+aiofiles==24.1.0
+pytz==2025.2
