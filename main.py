@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from telethon import TelegramClient, events, Button
 from telethon.tl.functions.messages import SendReactionRequest
 from telethon.errors import SessionPasswordNeededError
+from aiohttp import web as aio_web
 
 # ─── LOGGING ─────────────────────────────────────
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -983,6 +984,22 @@ async def get_user_input(event, input_type):
         await event.reply("❌ Timeout! /host se dobara try karo.")
         return None
 
+
+# ─── HEALTH SERVER ───────────────────────────────
+async def health_handler(request):
+    return aio_web.Response(text="OK", status=200)
+
+async def start_health_server():
+    app = aio_web.Application()
+    app.router.add_get("/", health_handler)
+    app.router.add_get("/health", health_handler)
+    runner = aio_web.AppRunner(app)
+    await runner.setup()
+    port = int(os.environ.get("PORT", 8000))
+    site = aio_web.TCPSite(runner, "0.0.0.0", port)
+    await site.start()
+    logger.info(f"✅ Health server started on port {port}")
+
 # ─── START ────────────────────────────────────────
 async def main():
     await db.load()
@@ -995,6 +1012,9 @@ async def main():
     else:
         logger.warning("⚠️ BOT_TOKEN not set. Running in userbot-only mode.")
     
+    # Start health server
+    asyncio.create_task(start_health_server())
+
     # Start scheduler
     asyncio.create_task(scheduler_loop())
     

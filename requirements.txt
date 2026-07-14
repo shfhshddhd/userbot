@@ -4,3 +4,4 @@ redis==5.2.1
 cryptography==44.0.1
 aiofiles==24.1.0
 pytz==2025.2
+aiohttp==3.9.5
